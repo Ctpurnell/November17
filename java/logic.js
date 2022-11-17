@@ -2,7 +2,7 @@
 // THEN a timer starts and I am presented with a question
 // WHEN I answer a question
 // THEN I am presented with another question
-// WHEN I answer a question incorrectly  
+// WHEN I answer a question incorrectly
 // THEN time is subtracted from the clock  //<---------------you are here.
 // WHEN all questions are answered or the timer reaches 0
 // THEN the game is over
@@ -23,39 +23,43 @@ var submitBtn = document.getElementById("submit");
 var startBtn = document.getElementById("start");
 var initialsEl = document.getElementById("initials");
 var feedbackEl = document.getElementById("feedback");
-
+var timeLeft = 75;
+var downloadTimer;
+var quizOver = false; //<---------------------added var to stop clock.
 // sound effects
-var sfxRight = new Audio("assets/sfx/correct.wav");
-var sfxWrong = new Audio("assets/sfx/incorrect.wav");
+var sfxRight = new Audio("./style/sfx/correct.wav");
+var sfxWrong = new Audio("./style/sfx/incorrect.wav");
 
 function showNextQuestion() {
   //clear out any previous question
 
   //get next question
   var nextQuestion = questions[currentQuestionIndex];
-  
 }
 
 function startQuiz() {
   // hide start screen
-  var timeLeft = 75;
+
   var startScreenEl = document.getElementById("start-screen");
   startScreenEl.setAttribute("class", "hide");
   showNextQuestion();
   // un-hide questions section
   questionsEl.removeAttribute("class");
   //Trying to create a timer..........................................................................................
-  var downloadTimer = setInterval(function () {
-    if (timeLeft <= 1) {
+  downloadTimer = setInterval(function () {
+    if (timeLeft <= 0 || currentQuestionIndex === questions.length) {
       clearInterval(downloadTimer);
       timerEl.innerHTML = "Game Over";
     } else {
       timerEl.innerHTML = timeLeft + " seconds remaining";
     }
+    if (quizOver) {
+      clearInterval(downloadTimer);
+      downloadTimer = null;
+    }
     timeLeft -= 1;
   }, 1000);
 }
-
 
 startBtn.addEventListener("click", function (event) {
   event.stopPropagation();
@@ -63,7 +67,7 @@ startBtn.addEventListener("click", function (event) {
 });
 
 // show starting time
-timerEl.textContent = time;
+timerEl.textContent = timeLeft;
 
 getQuestion();
 
@@ -104,14 +108,14 @@ function questionClick(event) {
   // check if user guessed wrong
   if (buttonEl.value !== questions[currentQuestionIndex].answer) {
     // penalize time
-    time -= 15;
+    timeLeft -= 15;
 
-    if (time < 0) {
-      time = 0;
+    if (timeLeft < 0) {
+      timeLeft = 0;
     }
 
     // display new time on page
-    timerEl.textContent = time;
+    timerEl.textContent = timeLeft;
 
     // play "wrong" sound effect
     sfxWrong.play();
@@ -136,6 +140,8 @@ function questionClick(event) {
   // check if we've run out of questions
   if (time <= 0 || currentQuestionIndex === questions.length) {
     quizEnd();
+    clearInterval(downloadTimer);
+    quizOver = true; //<----------------------------------one of several attempts to stop a clock!
   } else {
     getQuestion();
   }
@@ -143,15 +149,15 @@ function questionClick(event) {
 
 function quizEnd() {
   // stop timer
-  clearInterval(timerId);
-
+  clearInterval(downloadTimer);
+  score = timeLeft;
   // show end screen
   var endScreenEl = document.getElementById("end-screen");
   endScreenEl.removeAttribute("class");
 
   // show final score
   var finalScoreEl = document.getElementById("final-score");
-  finalScoreEl.textContent = time;
+  finalScoreEl.textContent = timeLeft;
 
   // hide questions section
   questionsEl.setAttribute("class", "hide");
@@ -159,11 +165,11 @@ function quizEnd() {
 
 function clockTick() {
   // update time
-  time--;
-  timerEl.textContent = time;
+  timeLeft--;
+  timerEl.textContent = timeLeft;
 
   // check if user ran out of time
-  if (time <= 0) {
+  if (timeLeft <= 0) {
     quizEnd();
   }
 }
@@ -180,7 +186,7 @@ function saveHighscore() {
 
     // format new score object for current user
     var newScore = {
-      score: time,
+      score: score,
       initials: initials,
     };
 
