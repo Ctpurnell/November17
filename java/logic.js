@@ -1,16 +1,4 @@
-// WHEN I click the start button
-// THEN a timer starts and I am presented with a question
-// WHEN I answer a question
-// THEN I am presented with another question
-// WHEN I answer a question incorrectly
-// THEN time is subtracted from the clock  //<---------------you are here.
-// WHEN all questions are answered or the timer reaches 0
-// THEN the game is over
-// WHEN the game is over
-// THEN I can save my initials and score
-// list of all questions, choices, and answers
 
-// variables to keep track of quiz state
 var currentQuestionIndex = 0;
 var time = questions.length * 15;
 var timerId;
@@ -25,7 +13,7 @@ var initialsEl = document.getElementById("initials");
 var feedbackEl = document.getElementById("feedback");
 var timeLeft = 75;
 var downloadTimer;
-var quizOver = false; //<---------------------added var to stop clock.
+var quizOver = false; //<-----------------------------------added var to stop clock.
 // sound effects
 var sfxRight = new Audio("./style/sfx/correct.wav");
 var sfxWrong = new Audio("./style/sfx/incorrect.wav");
@@ -57,7 +45,7 @@ function startQuiz() {
       clearInterval(downloadTimer);
       downloadTimer = null;
     }
-    timeLeft -= 1;
+    timeLeft--;
   }, 1000);
 }
 
@@ -163,17 +151,6 @@ function quizEnd() {
   questionsEl.setAttribute("class", "hide");
 }
 
-function clockTick() {
-  // update time
-  timeLeft--;
-  timerEl.textContent = timeLeft;
-
-  // check if user ran out of time
-  if (timeLeft <= 0) {
-    quizEnd();
-  }
-}
-
 function saveHighscore() {
   // get value of input box
   var initials = initialsEl.value.trim();
@@ -210,7 +187,7 @@ function checkForEnter(event) {
 submitBtn.onclick = saveHighscore;
 
 // user clicks button to start quiz
-startBtn.onclick = startQuiz;
+// startBtn.onclick = startQuiz;<-------------------------------------not needed. 
 
 // user clicks on element containing choices
 choicesEl.onclick = questionClick;
